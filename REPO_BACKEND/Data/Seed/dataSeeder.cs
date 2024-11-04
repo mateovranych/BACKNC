@@ -145,7 +145,7 @@ public class DataSeeder
 				new Province { Name = "Paraná", Neighborhoods = CreateNeighborhoods("Paraná") }
 			}
 		},
-        // Agrega los demás países de manera similar
+		
         new Country
 		{
 			Name = "Perú",
@@ -227,33 +227,23 @@ public class DataSeeder
 	private List<Neighborhood> CreateNeighborhoods(string provinceName)
 	{
 		var neighborhoods = new Dictionary<string, List<string>>
-	{
-
-        // Barrios conocidos en Buenos Aires
+	{        
         { "Buenos Aires", new List<string> { "Palermo", "Recoleta", "San Telmo", "La Boca", "Belgrano" } },
-
-		//Barrios de córdoba
+		
 		{ "Cordoba", new List<string> { "Centro", "Pueyrredon", "General Paz", "Barrio Talleres", "Yofre sur" } },
-
-        // Barrios conocidos en CABA
+        
         { "CABA", new List<string> { "Palermo", "Recoleta", "San Telmo", "La Boca", "Belgrano" } },
-
-        // Barrios conocidos en Mendoza
+       
         { "Mendoza", new List<string> { "Ciudad", "Godoy Cruz", "Guaymallén", "Maipú", "Luján de Cuyo" } },
-
-        // Barrios conocidos en San Juan
+       
         { "San Juan", new List<string> { "Centro", "Rivadavia", "Rawson", "Chimbas", "Santa Lucía" } },
-
-        // Barrios conocidos en Salta
+        
         { "Salta", new List<string> { "Centro", "Caballito", "Bº Norte", "Bº Sur", "San Lorenzo" } },
-
-        // Barrios conocidos en São Paulo
+        
         { "São Paulo", new List<string> { "Paulista", "Vila Madalena", "Liberdade", "Pinheiros", "Itaim Bibi" } },
-
-        // Barrios conocidos en Rio de Janeiro
+        
         { "Rio de Janeiro", new List<string> { "Copacabana", "Ipanema", "Lapa", "Santa Teresa", "Leblon" } },
-
-        // Barrios conocidos en Minas Gerais
+     
         { "Minas Gerais", new List<string> { "Savassi", "Centro", "Pampulha", "São Bento", "Santa Efigênia" } },
 
         // Barrios conocidos en Bahia
@@ -348,8 +338,7 @@ public class DataSeeder
 
         // Barrios conocidos en Barquisimeto
         { "Barquisimeto", new List<string> { "Centro", "El Ujano", "El Manzano", "La Carucieña", "Joaquín Crespo" } },
-
-        // Barrios conocidos en Puerto La Cruz
+        
         { "Puerto La Cruz", new List<string> { "Centro", "Lechería", "Puerto Escondido", "Playa Mansa", "Marina" } },
 	};
 

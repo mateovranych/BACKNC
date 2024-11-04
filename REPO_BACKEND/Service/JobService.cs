@@ -54,18 +54,17 @@ namespace backnc.Service
 			await context.SaveChangesAsync();
 		}
 		public async Task<string> SaveImageAsync(IFormFile image)
-		{
-			// Generar un nombre de archivo único
-			string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
-			// Ruta completa para almacenar la imagen
-			string fullPath = Path.Combine(rutaAlmacenamiento, fileName);
+		{			
 
-			// Guardar la imagen en el sistema de archivos
+			string fileName = Guid.NewGuid().ToString() + Path.GetExtension(image.FileName);
+			
+			string fullPath = Path.Combine(rutaAlmacenamiento, fileName);
+			
 			using (var stream = new FileStream(fullPath, FileMode.Create))
 			{
 				await image.CopyToAsync(stream);
 			}
-			// Devolver la URL relativa de la imagen
+			
 			return $"{rutaServidor}/images/{fileName}";
 
 		}

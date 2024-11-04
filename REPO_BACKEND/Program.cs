@@ -30,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn
 // Agregar otros servicios al contenedor
 builder.Services.AddScoped<IAppDbContext, AppDbContext>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IProvinceSerivce, ProvinceService>();
 builder.Services.AddScoped<INeighborhoodService, NeighborhoodService>();
@@ -44,8 +45,7 @@ builder.Services.AddScoped<DataSeeder>();
 builder.Services.AddSwaggerGen(c =>
 {
 	c.SwaggerDoc("v1", new OpenApiInfo { Title = "MercadoChamba!", Version = "v1" });
-
-	// Configuración de seguridad JWT
+	
 	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 	{
 		In = ParameterLocation.Header,
@@ -70,13 +70,11 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
-
 builder.Services.AddControllers()
 	.AddJsonOptions(options =>
 {
 	options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
-
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
@@ -104,8 +102,6 @@ builder.Services.AddCors(options =>
 				   .AllowAnyHeader()
 				   .AllowAnyMethod()
 				   .AllowCredentials();
-
-
 		});
 });
 

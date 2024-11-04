@@ -39,9 +39,7 @@
 				this.data = data;
 				this.IsSuccess = true;
 			}
-		}
-
-		// Con validationError
+		}		
 		public BaseResponse(object errors, string message = "Error de validación")
 		{
 			this.status = "error";

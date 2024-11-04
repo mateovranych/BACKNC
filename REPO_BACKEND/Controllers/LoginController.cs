@@ -10,10 +10,12 @@ namespace backnc.Controllers
 	public class LoginController : ControllerBase
 	{
 		private readonly IUserService _userService;
+		private readonly ITokenService _tokenService;
 
-		public LoginController(IUserService userService)
+		public LoginController(IUserService userService, ITokenService tokenService)
 		{
 			_userService = userService;
+			_tokenService = tokenService;
 		}
 
 		[HttpPost]
@@ -22,7 +24,7 @@ namespace backnc.Controllers
 			return await _userService.Authenticate(userLogin);
 		}
 
-		[HttpPost("register")]
+		[HttpPost("Registro")]
 		public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
 		{
 			var result = await _userService.Register(registerUser);
@@ -33,20 +35,19 @@ namespace backnc.Controllers
 			return Ok(result);
 		}
 
-		[HttpPost("validate-token")]
-		public async Task<IActionResult> ValidateToken([FromBody] string token)
-		{
-			var response = await _userService.ValidateToken(token);
+		//[HttpPost("Validar-Token")]
+		//public async Task<IActionResult> ValidateToken([FromBody] string token)
+		//{
+		//	var response = await _userService.ValidateToken(token);
 
-			if (!response.IsSuccess)
-			{
-				return BadRequest(response);
-			}
+		//	if (!response.IsSuccess)
+		//	{
+		//		return BadRequest(response);
+		//	}
+		//	return Ok(response);
+		//}
 
-			return Ok(response);
-		}
-
-		[HttpGet("validate-token")]
+		[HttpGet("ValidarToken")]
 		public async Task<IActionResult> ValidateToken()
 		{
 			if (!Request.Headers.ContainsKey("Authorization"))
@@ -58,7 +59,7 @@ namespace backnc.Controllers
 			}
 
 			var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-			var response = await _userService.ValidateToken(token);
+			var response = await _tokenService.ValidateToken(token);
 
 			if (!response.IsSuccess)
 			{

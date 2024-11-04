@@ -18,11 +18,13 @@ namespace backnc.Service
 		private readonly IAppDbContext _context;
 		private readonly IUserValidationService _userValidationService;
 		private readonly IConfiguration _configuration;
-		public UserService(IAppDbContext context, IConfiguration configuration, IUserValidationService userValidationService)
+		private readonly ITokenService _tokenService;
+		public UserService(IAppDbContext context, IConfiguration configuration, IUserValidationService userValidationService,ITokenService tokenService)
 		{
 			_context = context;
 			_configuration = configuration;
 			_userValidationService = userValidationService;
+			_tokenService = tokenService;
 
 		}
 		public async Task<BaseResponse> Authenticate(LoginUser userLogin)
@@ -31,20 +33,35 @@ namespace backnc.Service
 				.Where(u => u.UserName == userLogin.UserName)
 				.FirstOrDefaultAsync();
 
-			if (user == null)
+			if (user == null || !PasswordHasher.VerifyPassword(userLogin.Password, user.Password))
 			{
-				return Response.ValidationError("Usuario no encontrado", new List<string> { "El usuario no existe o las credenciales son incorrectas." });
+				return Response.ValidationError("Credenciales incorrectas", new List<string> { "El nombre de usuario o contraseña es incorrecto." });
 			}
 
-			var hashedPassword = PasswordHasher.HashPassword(userLogin.Password);
-			if (user.Password != hashedPassword)
-			{
-				return Response.ValidationError("Credenciales incorrectas", new List<string> { "El usuario no existe o las credenciales son incorrectas." });
-			}
 
-			var token = Generate(user);
+			var token =  _tokenService.GenerateToken(user);
+
 			return Response.Success(token);
-		}		
+
+			#region
+			//if (user == null)
+			//{
+			//	return Response.ValidationError("Usuario no encontrado", 
+			//		new List<string> { "El usuario no existe o las credenciales son incorrectas." });
+			//}
+
+			//var hashedPassword = PasswordHasher.HashPassword(userLogin.Password);
+			//if (user.Password != hashedPassword)
+			//{
+			//	return Response.ValidationError("Credenciales incorrectas", 
+			//		new List<string> { "El usuario no existe o las credenciales son incorrectas." });
+			//}
+
+
+			// Hice el servicio Token porque estaba todo en el mismo servicio de logeo
+			#endregion
+
+		}
 		public async Task<BaseResponse> Register(RegisterUser registerUser)
 		{
 			var validator = new RegisterUserValidator(_userValidationService);
@@ -66,20 +83,20 @@ namespace backnc.Service
 				phoneNumber = registerUser.phoneNumber,
 				Password = PasswordHasher.HashPassword(registerUser.password)
 			};
-
-			_context.Users.Add(user);
+			_context.Users.Add(user);			
 			await _context.SaveChangesAsync();
 			
 			var profile = new Profile
 			{
 				UserId = user.Id,
-				Specialty = "",
-				Experience = "",
-				Description = "",
-				ImageUrl = ""
+				Specialty = "empty",
+				Experience = "empty",
+				Description = "empty",
+				ImageUrl = "empty"
 			};
 			_context.Profiles.Add(profile);
 			await _context.SaveChangesAsync();
+			
 
 			var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Cliente");
 			if (role == null)
@@ -92,76 +109,78 @@ namespace backnc.Service
 				RoleId = role.Id
 			};
 			_context.UserRoles.Add(userRole);
+
 			await _context.SaveChangesAsync();
+
 			return Response.Success("Usuario registrado exitosamente");
 		}
 
-		private string Generate(User user)
-		{
-			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-			var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+		//private string Generate(User user)
+		//{
+		//	var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+		//	var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-			var rol = _context.UserRoles
-			.Where(ur => ur.UserId == user.Id)
-			.Select(ur => ur.Role.Name)
-			.FirstOrDefault();
+		//	var rol = _context.UserRoles
+		//	.Where(ur => ur.UserId == user.Id)
+		//	.Select(ur => ur.Role.Name)
+		//	.FirstOrDefault();
 
-			var claims = new[]
-			{
-				new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-				new Claim(ClaimTypes.Role,rol),
-			};
+		//	var claims = new[]
+		//	{
+		//		new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+		//		new Claim(ClaimTypes.Role,rol),
+		//	};
 
-			var token = new JwtSecurityToken(
-				_configuration["Jwt:Issuer"],
-				_configuration["Jwt:Audience"],
-				claims,
-				expires: DateTime.Now.AddMinutes(15),
-				signingCredentials: credentials);
+		//	var token = new JwtSecurityToken(
+		//		_configuration["Jwt:Issuer"],
+		//		_configuration["Jwt:Audience"],
+		//		claims,
+		//		expires: DateTime.Now.AddMinutes(15),
+		//		signingCredentials: credentials);
 
-			return new JwtSecurityTokenHandler().WriteToken(token);
-		}
-		public async Task<BaseResponse> ValidateToken(string token)
-		{
-			var tokenHandler = new JwtSecurityTokenHandler();
-			var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
+		//	return new JwtSecurityTokenHandler().WriteToken(token);
+		//}
+		//public async Task<BaseResponse> ValidateToken(string token)
+		//{
+		//	var tokenHandler = new JwtSecurityTokenHandler();
+		//	var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
 
-			try
-			{
-				tokenHandler.ValidateToken(token, new TokenValidationParameters
-				{
-					ValidateIssuerSigningKey = true,
-					IssuerSigningKey = new SymmetricSecurityKey(key),
-					ValidateIssuer = true,
-					ValidIssuer = _configuration["Jwt:Issuer"],
-					ValidateAudience = true,
-					ValidAudience = _configuration["Jwt:Audience"],
-					ClockSkew = TimeSpan.Zero
-				}, out SecurityToken validatedToken);
+		//	try
+		//	{
+		//		tokenHandler.ValidateToken(token, new TokenValidationParameters
+		//		{
+		//			ValidateIssuerSigningKey = true,
+		//			IssuerSigningKey = new SymmetricSecurityKey(key),
+		//			ValidateIssuer = true,
+		//			ValidIssuer = _configuration["Jwt:Issuer"],
+		//			ValidateAudience = true,
+		//			ValidAudience = _configuration["Jwt:Audience"],
+		//			ClockSkew = TimeSpan.Zero
+		//		}, out SecurityToken validatedToken);
 
-				var jwtToken = (JwtSecurityToken)validatedToken;
-				var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-				var role = jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value;
+		//		var jwtToken = (JwtSecurityToken)validatedToken;
+		//		var userId = jwtToken.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+		//		var role = jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value;
 
-				var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+		//		var user = await _context.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
 
-				if (user == null)
-				{
-					return Response.ValidationError("Usuario no encontrado", new List<string> { "El token es válido pero el usuario no existe." });
-				}
+		//		if (user == null)
+		//		{
+		//			return Response.ValidationError("Usuario no encontrado", new List<string> { "El token es válido pero el usuario no existe." });
+		//		}
 
-				var userResponse = new
-				{
-					UserName = user.UserName,
-					Role = role,
-				};
+		//		var userResponse = new
+		//		{
+		//			UserName = user.UserName,
+		//			Role = role,
+		//		};
 
-				return Response.Success(userResponse);
-			}
-			catch (Exception)
-			{
-				return Response.ValidationError("Token inválido", new List<string> { "El token es inválido o ha expirado." });
-			}
-		}		
+		//		return Response.Success(userResponse);
+		//	}
+		//	catch (Exception)
+		//	{
+		//		return Response.ValidationError("Token inválido", new List<string> { "El token es inválido o ha expirado." });
+		//	}
+		//}		
 	}
 }

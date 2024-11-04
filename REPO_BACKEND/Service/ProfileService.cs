@@ -84,10 +84,7 @@ namespace backnc.Service
 				await context.SaveChangesAsync();
 			}
 		}
-
 		
-
-
 		public async Task<string> SaveImageAsync(IFormFile image)
 		{
 
