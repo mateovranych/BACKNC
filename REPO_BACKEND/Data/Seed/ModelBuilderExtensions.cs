@@ -24,16 +24,16 @@ namespace backnc.Data.Seed
 					firstName = "administrador",
 					lastName = "administrador",
 					email = "admin@gmail.com",					
-					UserName = "admin", 
-					Password = "Admin123!"
+					username = "admin", 
+					password = "Admin123!"
 				},
 				new User { 
 					Id = 2, 
-					UserName = "user",
+					username = "user",
 					firstName = "user",
 					lastName = "user",
 					email = "user@gmail.com",
-					Password = "User123!"
+					password = "User123!"
 				}
 			);
 

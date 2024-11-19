@@ -9,9 +9,9 @@ namespace backnc.Data.ConfigEntities
         {
             builder.HasKey(u => u.Id);
 
-            builder.Property(u => u.UserName).IsRequired().HasMaxLength(50);
+            builder.Property(u => u.username).IsRequired().HasMaxLength(50);
 
-            builder.Property(u => u.Password).IsRequired();
+            builder.Property(u => u.password).IsRequired();
 
             builder.HasMany(u => u.UserRoles)
                    .WithOne(ur => ur.User)

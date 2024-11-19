@@ -143,7 +143,7 @@ namespace backnc.Controllers
 			{
 				Id = profile.Id,
 				UserId = profile.UserId,
-				UserName = profile.User.UserName,  // Mapear el nombre del usuario				 
+				UserName = profile.User.username,  // Mapear el nombre del usuario				 
 				phoneNumber = profile.User.phoneNumber,
 				Specialty = profile.Specialty,
 				Experience = profile.Experience,
@@ -195,7 +195,7 @@ namespace backnc.Controllers
 				{
 					Id = profile.Id,
 					UserId = profile.UserId,
-					UserName = profile.User.UserName,					
+					UserName = profile.User.username,					
 					phoneNumber = profile.User.phoneNumber,
 					Specialty = profile.Specialty,
 					Experience = profile.Experience,
@@ -227,7 +227,7 @@ namespace backnc.Controllers
 				{
 					Id = profile.Id,
 					UserId = profile.UserId,
-					UserName = profile.User.UserName,  			
+					UserName = profile.User.username,  			
 					phoneNumber = profile.User.phoneNumber,
 					Specialty = profile.Specialty,
 					Experience = profile.Experience,

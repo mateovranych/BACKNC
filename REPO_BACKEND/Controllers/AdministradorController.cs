@@ -1,6 +1,7 @@
 ﻿using backnc.Common;
 using backnc.Common.DTOs.AdministradorDTO;
 using backnc.Data.POCOEntities;
+using backnc.Interfaces;
 using backnc.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,18 +12,20 @@ namespace backnc.Controllers
 	[ApiController]
 	public class AdministradorController : ControllerBase
 	{
-		private readonly AdministradorService _administradorService;
-        public AdministradorController(AdministradorService administradorService)
+		private readonly IAdministradorService _administradorService;
+		
+        public AdministradorController(IAdministradorService administradorService)
         {
 			this._administradorService = administradorService;         
         }
 
+		
 		[HttpGet]
 		public async Task<IActionResult> GetAllAdmins()
 		{
 			var clientes = await _administradorService.GetAllAdminsAsync();
 			return Ok(clientes);
-		}
+		}		
 
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetAdminById(int id)
@@ -43,40 +46,21 @@ namespace backnc.Controllers
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(ModelState);
-			}
-
-			var hashedPassword = PasswordHasher.HashPassword(adminDto.Password);
-
-			var user = new User
-			{
-				UserName = adminDto.Username,
-				email = adminDto.Email,
-				Password = hashedPassword
-			};
-
-			await _administradorService.CreateAdminAsync(user);
-			return CreatedAtAction(nameof(GetAdminById), new { id = user.Id }, user);
+			}			
+		
+			var nuevoAdministrador = await _administradorService.CreateAdminAsync(adminDto);
+			return CreatedAtAction(nameof(GetAdminById), new {id = nuevoAdministrador.Id}, nuevoAdministrador);
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateAdmin(int id, CreateAdministradorDTO adminDto)
+		public async Task<IActionResult> UpdateAdmin(int id, UpdateAdministradorDTO adminDto)
 		{
 			if (!ModelState.IsValid)
 			{
 				return BadRequest(ModelState);
 			}
 
-			var existingUser = await _administradorService.GetAdminByIdAsync(id);
-			if (existingUser == null)
-			{
-				return NotFound("Administrador no encontrado");
-			}
-
-			existingUser.UserName = adminDto.Username;
-			existingUser.email = adminDto.Email;
-			existingUser.Password = PasswordHasher.HashPassword(adminDto.Password);
-
-			await _administradorService.UpdateAdminAsync(existingUser);
+			await _administradorService.UpdateAdminAsync(id,adminDto);
 			return NoContent();
 		}
 

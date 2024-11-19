@@ -79,7 +79,7 @@ namespace backnc.Service
 
 				var userResponse = new
 				{
-					UserName = user.UserName,
+					UserName = user.username,
 					Role = role,
 				};
 

@@ -60,18 +60,18 @@ public class DataSeeder
 
 	private async Task CreateAdminUserAsync()
 	{
-		if (await _context.Users.AnyAsync(u => u.UserName == "admin")) return;
+		if (await _context.Users.AnyAsync(u => u.username == "admin")) return;
 
 		var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Admin");
 		if (adminRole == null) throw new Exception("Role 'Admin' does not exist.");
 
 		var newUser = new User
 		{
-			UserName = "admin",
+			username = "admin",
 			firstName = "Administrador",
 			lastName = "Administrador",
 			email = "admin@gmail.com",
-			Password = PasswordHasher.HashPassword("Admin123!")
+			password = PasswordHasher.HashPassword("Admin123!")
 		};
 
 		_context.Users.Add(newUser);
@@ -88,18 +88,18 @@ public class DataSeeder
 	}
 	private async Task CreateClienteAsync()
 	{
-		if (await _context.Users.AnyAsync(u => u.UserName == "cliente")) return;
+		if (await _context.Users.AnyAsync(u => u.username == "cliente")) return;
 
 		var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Name == "Cliente");
 		if (adminRole == null) throw new Exception("Role 'Cliente' does not exist.");
 
 		var newUser = new User
 		{
-			UserName = "cliente",
+			username = "cliente",
 			firstName = "cliente",
 			lastName = "cliente",
 			email = "cliente@gmail.com",
-			Password = PasswordHasher.HashPassword("Cliente123!")
+			password = PasswordHasher.HashPassword("Cliente123!")
 		};
 
 		_context.Users.Add(newUser);

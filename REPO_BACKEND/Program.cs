@@ -35,10 +35,10 @@ builder.Services.AddScoped<ICountryService, CountryService>();
 builder.Services.AddScoped<IProvinceSerivce, ProvinceService>();
 builder.Services.AddScoped<INeighborhoodService, NeighborhoodService>();
 builder.Services.AddScoped<IUserValidationService, UserValidationService>();
+builder.Services.AddScoped<IAdministradorService, AdministradorService>();
+builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<ProfileService, ProfileService>();
 builder.Services.AddScoped<JobService, JobService>();
-builder.Services.AddScoped<AdministradorService, AdministradorService>();
-builder.Services.AddScoped<ClienteService, ClienteService>();
 builder.Services.AddScoped<DataSeeder>();
 
 
@@ -67,7 +67,6 @@ builder.Services.AddSwaggerGen(c =>
 		}
 	});
 	c.EnableAnnotations();
-
 });
 
 builder.Services.AddControllers()
@@ -91,7 +90,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
-
 
 builder.Services.AddCors(options =>
 {

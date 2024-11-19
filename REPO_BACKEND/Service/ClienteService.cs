@@ -4,10 +4,12 @@ using backnc.Common.DTOs.ClientesDTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using backnc.Data.POCOEntities;
+using backnc.Interfaces;
+using backnc.Common;
 
 namespace backnc.Service
 {
-	public class ClienteService
+	public class ClienteService : IClienteService
 	{
         private readonly IAppDbContext _appDbContext;        
         public ClienteService(IAppDbContext _appDbContext)
@@ -30,14 +32,28 @@ namespace backnc.Service
 				.FirstOrDefaultAsync(u => u.Id == id && u.UserRoles.Any(ur => ur.Role.Name == "Cliente"));
 		}
 
-		public async Task CreateClienteAsync(User user)
+		public async Task CreateClienteAsync(User user, CreateClienteDTO clienteDTO)
 		{
-			_appDbContext.Users.Add(user);
+			var hashedPassword = PasswordHasher.HashPassword(clienteDTO.Password);
+
+			var nuevoUser = new User
+			{
+				username = clienteDTO.UserName,
+				firstName = clienteDTO.FirstName,
+				lastName = clienteDTO.LastName,
+				dni = clienteDTO.dni,
+				address = clienteDTO.address,
+				phoneNumber = clienteDTO.phoneNumber,
+				email = clienteDTO.Email,
+				password = hashedPassword
+			};
+
+			_appDbContext.Users.Add(nuevoUser);
 			await _appDbContext.SaveChangesAsync();
 
 			var profile = new Profile
 			{
-				UserId = user.Id,				
+				UserId = nuevoUser.Id,				
 				Specialty = "",
 				Experience = "",
 				Description = "",
@@ -49,11 +65,9 @@ namespace backnc.Service
 			var role = await _appDbContext.Roles.FirstOrDefaultAsync(r => r.Name == "Cliente");
 			var userRole = new UserRole
 			{
-				UserId = user.Id,
+				UserId = nuevoUser.Id,
 				RoleId = role.Id
 			};
-
-
 
 			_appDbContext.UserRoles.Add(userRole);
 			await _appDbContext.SaveChangesAsync();

@@ -6,10 +6,7 @@ using backnc.Data.POCOEntities;
 using backnc.Interfaces;
 using backnc.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
 
 namespace backnc.Service
 {
@@ -30,10 +27,10 @@ namespace backnc.Service
 		public async Task<BaseResponse> Authenticate(LoginUser userLogin)
 		{
 			var user = await _context.Users
-				.Where(u => u.UserName == userLogin.UserName)
+				.Where(u => u.username == userLogin.username)
 				.FirstOrDefaultAsync();
 
-			if (user == null || !PasswordHasher.VerifyPassword(userLogin.Password, user.Password))
+			if (user == null || !PasswordHasher.VerifyPassword(userLogin.password, user.password))
 			{
 				return Response.ValidationError("Credenciales incorrectas", new List<string> { "El nombre de usuario o contraseña es incorrecto." });
 			}
@@ -74,14 +71,14 @@ namespace backnc.Service
 
 			var user = new User
 			{
-				UserName = registerUser.userName,
+				username = registerUser.userName,
 				firstName = registerUser.firstName,
 				lastName = registerUser.lastName,
 				email = registerUser.email,
 				dni = registerUser.dni,
 				address = registerUser.address,
 				phoneNumber = registerUser.phoneNumber,
-				Password = PasswordHasher.HashPassword(registerUser.password)
+				password = PasswordHasher.HashPassword(registerUser.password)
 			};
 			_context.Users.Add(user);			
 			await _context.SaveChangesAsync();

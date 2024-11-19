@@ -21,7 +21,7 @@ public class UserValidationService : IUserValidationService
 
 	public async Task<bool> IsUserNameTaken(string userName)
 	{
-		return await _context.Users.AnyAsync(u => u.UserName == userName);
+		return await _context.Users.AnyAsync(u => u.username == userName);
 	}
 
 	public async Task<bool> IsEmailTaken(string email)
